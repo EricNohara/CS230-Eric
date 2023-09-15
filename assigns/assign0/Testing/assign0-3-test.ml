@@ -2,6 +2,7 @@
 
 (* ****** ****** *)
 
+(* let () = print_endline (int2str 10) *)
 let () = assert(int2str(0) = "0")
 let () = assert(int2str(10) = "10")
 let () = assert(int2str(100) = "100")
