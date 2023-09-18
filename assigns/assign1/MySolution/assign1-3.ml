@@ -26,31 +26,17 @@ fun string_avoid_132(cs: string): bool
 
 let string_avoid_132 (cs: string): bool =
   let length = string_length cs in
-  let rec is_132 s:string i:int =
-    if i >= length then
-      false
-    else
-      let a = string_get_at s i in
-      let rec find_c j =
-       if j >= length s then
-          false
-        else if string_get_at s j < a then
-          true
-        else
-          find_c (j + 1)
-      in
-      let rec find_b j =
-        if j >= length s then
-          false
-        else if string_get_at s j > a && find_c (j + 1) then
-          true
-        else
-          find_b (j + 1)
-      in
-      if find_b (i + 1) then
-        true
-      else
-        is_132 s (i + 1)
-  in
-  if is_132 cs 0 then false else true
+  let rec loop a b c = 
+    if length < 3 then true 
+    else if (string_get_at cs a < string_get_at cs b && string_get_at cs b < string_get_at cs c) && a < c && c < b then false
+    else if a = length-3 then true
+    else if b = length-1 then loop a (c+1) (c+2)
+    else if c = length-2 then loop (a+1) (a+2) (a+3)
+    else loop a c (b+1)
+  in loop 0 1 2
 ;;
+
+      
+    
+    
+    

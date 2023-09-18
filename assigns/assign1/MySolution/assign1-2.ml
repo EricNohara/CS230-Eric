@@ -13,17 +13,22 @@ string_merge(cs1)(cs2) equals "1234abcde"
 *)
 #use "./../../../classlib/OCaml/MyOCaml.ml";;
 
+(*Helper function to give the substring of a string starting at the second char of the string*)
+let substring_helper (str: string): string = 
+  string_tabulate (string_length str - 1) (fun i -> string_get_at str (i + 1))
+
 let rec string_merge (cs1: string) (cs2: string): string =
   match (cs1, cs2) with
   | ("", cs2) -> cs2    (*if cs1 is empty string, then return cs2*)
   | (cs1, "") -> cs1    (*if cs2 is empty string, then return cs1*)
-  | (s1, s2) ->         (*else perform function to merge strings*)
-    let c1 = string_get_at s1 0 in    (*get the lengths of string 1 and string 2*)
-    let c2 = string_get_at s2 0 in
-    if char_tolower c1 <= char_tolower c2 then    (*if the char in string 1 is greater than that of string 2, add that char to the string *)
-      string_cons c1 (string_merge (string_tabulate (string_length s1 - 1) (fun i -> string_get_at s1 (i + 1))) s2)
+  | (cs1, cs2) ->         (*else perform function to merge strings*)
+    let char1 = string_get_at cs1 0 in    (*get the lengths of string 1 and string 2*)
+    let char2 = string_get_at cs2 0 in
+    if char1 <= char2     (*add the correct char to the string containing the merge *)
+    then 
+      string_cons char1 (string_merge (substring_helper cs1) cs2)   
     else
-      string_cons c2 (string_merge s1 (string_tabulate (string_length s2 - 1) (fun i -> string_get_at s2 (i + 1))))
+      string_cons char2 (string_merge cs1 (substring_helper cs2))
     ;;
 
 
