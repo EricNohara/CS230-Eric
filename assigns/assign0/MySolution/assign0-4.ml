@@ -2,7 +2,7 @@
 (*helper function to accumulate the int from the digits of the string*)
 let rec accumulate (i: int) (str: string): int =
   if i < 0 then 0 else  (*Base case: when the current index points outside the string, return 0*)
-    let digitChar = string_get_at str i in 
+    let digitChar = string_get str i in 
     let digitValue = (ord digitChar) - (ord '0') in 
     digitValue + 10 * accumulate(i-1)(str)   (*get the correct char at the correct position in the string and convert it to an int, then add it to the total*)
 

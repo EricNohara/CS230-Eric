@@ -1,7 +1,7 @@
 #use "./../assign0.ml";;
 (*helper function used in the anonymous function to reverse the string one character at a time*)
 let rec reverseString (i: int) (str: string): char = 
-  string_get_at str i    (*return the character at the corresponding index value of the string*)
+  string_get str i    (*return the character at the corresponding index value of the string*)
 
 (*wrapper function to create a new string of length cs.length and with the correct contents of the reversed string*)
 let stringrev(cs: string): string = 
