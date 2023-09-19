@@ -26,13 +26,13 @@ fun string_avoid_1324(cs: string): bool
 
 let string_avoid_1324 (cs: string): bool =
   let length = string_length cs in
-  let rec loop a b c d= 
+  let rec loop a c b d= 
     if length < 4 then true 
     else if (string_get_at cs a < string_get_at cs b && string_get_at cs b < string_get_at cs c && string_get_at cs c < string_get_at cs d) && a < c && c < b && b < d then false
     else if a = length-4 then true
-    else if d = length-1 then loop a c (b+1) (b+2)
-    else if b = length-2 then loop a (c+1) (c+2) (c+3)
     else if c = length-3 then loop (a+1) (a+2) (a+3) (a+4)
+    else if b = length-2 then loop a (c+1) (c+2) (c+3)
+    else if d = length-1 then loop a c (b+1) (b+2)
     else loop a c b (d+1)
   in loop 0 1 2 3
 ;;
