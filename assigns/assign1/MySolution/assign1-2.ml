@@ -15,7 +15,7 @@ string_merge(cs1)(cs2) equals "1234abcde"
 
 (*Helper function to give the substring of a string starting at the second char of the string*)
 let substring_helper (str: string): string = 
-  string_tabulate (string_length str - 1) (fun i -> string_get_at str (i + 1))
+  string_init (string_length str - 1) (fun i -> string_get_at str (i + 1))
 
 let rec string_merge (cs1: string) (cs2: string): string =
   match (cs1, cs2) with
