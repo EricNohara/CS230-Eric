@@ -1,5 +1,4 @@
-#use "./../../../classlib/OCaml/MyOCaml.ml"
-
+#use "./../assign0.ml";;
 (*helper function to accumulate the int from the digits of the string*)
 let rec accumulate (i: int) (str: string): int =
   if i < 0 then 0 else  (*Base case: when the current index points outside the string, return 0*)

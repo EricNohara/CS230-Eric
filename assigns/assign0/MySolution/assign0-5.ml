@@ -1,5 +1,4 @@
-#use "./../../../classlib/OCaml/MyOCaml.ml"
-
+#use "./../assign0.ml";;
 (*helper function used in the anonymous function to reverse the string one character at a time*)
 let rec reverseString (i: int) (str: string): char = 
   string_get_at str i    (*return the character at the corresponding index value of the string*)

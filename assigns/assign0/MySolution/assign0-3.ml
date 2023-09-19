@@ -1,5 +1,4 @@
-#use "./../../../classlib/OCaml/MyOCaml.ml"
-
+#use "./../assign0.ml";;
 (*helper function used in the anonymous function that will find the correct digit from the int and list it as a char*)
 let rec getDigit(i: int)(i0: int): char =
   if i = 0 then chr (48+(i0 mod 10)) else getDigit(i-1)(i0/10)   (*when i = 0, return the char of the current ones digit, else call the function again with one less digit in i0*)
