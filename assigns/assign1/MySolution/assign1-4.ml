@@ -18,18 +18,33 @@ converting ds1 and ds2 to integers can cause overflow.
 
 #use "./../../../classlib/OCaml/MyOCaml.ml";;
 
+let int_same_digits_helper (strsmall: string) (strlarge: string): string =
+  let lengthsmall = string_length strsmall in
+  let lengthlarge = string_length strlarge in
+  let padding = lengthlarge-lengthsmall in
+  string_init (lengthlarge) (fun i -> if i < padding then '0' else string_get_at strsmall (i-padding))
+
 let insert_digit_helper (chr: char) (str: string): string =
   string_tabulate (string_length str+1) (fun i -> if i = 0 then chr else string_get_at str (i-1))
 
 let intrep_add (ds1: string) (ds2:string): string =
-  let length1 = string_length ds1 in 
-  let length2 = string_length ds2 in 
-  let rec loop i carry answer = 
-    if i > length1-1 && i > length1-1 && carry = 0 then answer 
-    else if i > length1-1 && i > length1-1 then insert_digit_helper (char_of_digit carry) answer 
-    else if i > length1-1 then loop (i+1) 0 (insert_digit_helper (char_of_digit(digit_of_char(string_get_at ds2 i) + carry)) answer)
-    else if i > length2-1 then loop (i+1) 0 (insert_digit_helper (char_of_digit(digit_of_char(string_get_at ds1 i) + carry)) answer)
-    else loop (i+1) ((digit_of_char(string_get_at ds1 i) + digit_of_char(string_get_at ds1 i) + carry)/10) (insert_digit_helper (char_of_digit((digit_of_char(string_get_at ds1 i) + digit_of_char(string_get_at ds2 i) + carry) mod 10)) answer) in
-    if loop 0 0 "" = "0" then ""
-    else loop 0 0 ""
+  let length1 = string_length ds1 in
+  let length2 = string_length ds2 in
+
+  let rec loop s1 s2 i carry answer = 
+    let length = (string_length s1)-1 in
+    if i > length && carry = 0 then answer
+    else if i > length then insert_digit_helper (char_of_digit carry) answer
+    else loop s1 s2 (i+1) ((digit_of_char(string_get_at s1 (length-i)) + digit_of_char(string_get_at s2 (length-i)) + carry)/10) (insert_digit_helper (char_of_digit((digit_of_char(string_get_at s1 (length-i)) + digit_of_char(string_get_at s2 (length-i)) + carry) mod 10)) answer) in
+
+    if length1 > length2 then 
+      if loop ds1 (int_same_digits_helper ds2 ds1) 0 0 "" = "0" then "" 
+      else loop ds1 (int_same_digits_helper ds2 ds1) 0 0 "" 
+    else if length2 > length1 then 
+      if loop (int_same_digits_helper ds1 ds2) ds2 0 0 "" = "0" then "" 
+      else loop (int_same_digits_helper ds1 ds2) ds2 0 0 ""  
+    else 
+      if loop ds1 ds2 0 0 "" = "0" then ""
+      else loop ds1 ds2 0 0 "" 
+
 
