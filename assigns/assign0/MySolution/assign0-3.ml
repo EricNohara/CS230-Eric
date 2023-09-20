@@ -10,5 +10,10 @@ let rec intLength(i0: int) (numdigits: int): int =
 
 (*wrapper function that creates a new string with the correct length and contains the correct digits from the int*)
 let int2str(i0: int): string = 
-  let length = intLength i0 1 in
-  string_init (length) (fun (i) -> getDigit(length-i-1)(i0))    (*initialize a string of the length of i0 and the correct digits in order*)
+  if i0 >= 0 then 
+    let length = intLength i0 1 in
+    string_init (length) (fun (i) -> getDigit(length-i-1)(i0))    (*initialize a string of the length of i0 and the correct digits in order*)
+  else 
+    let i0 = i0 * (-1) in 
+    let length = (intLength i0 1)+1 in
+    string_init (length) (fun (i) -> if i = 0 then '-' else getDigit(length-i-1)(i0))
