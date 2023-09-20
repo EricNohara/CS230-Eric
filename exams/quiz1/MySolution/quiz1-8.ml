@@ -17,7 +17,14 @@
 *)
 
 let sort5: int*int*int*int*int -> int*int*int*int*int =
-  (* YOUR CODE *)
+  let helper a b c d e v =
+    if v > a then let v = a in
+    if v > b then let v = b in
+    if v > c then let v = c in
+    if v > d then let v = d in
+    if v > e then let v = e in
+    return v in 
+  fun (a,b,c,d,e) -> (helper a b c d e a, helper a b c d e b, helper a b c d e c, helper a b c d e d, helper a b c d e e)
 
 
 (* ************************************************ *)
