@@ -9,10 +9,13 @@ sys.path.append("./../../../../classlib/Python")
 from MyPython import *
 
 def fnlist_make_fwork(fwork):
+    eList = []
+
+    fwork(lambda x: eList.append(x))
+
     result = fnlist_nil()
+    
+    for el in fnlist_reverse(eList):
+        result = fnlist_cons(el, result)
 
-    def work(x0):
-        return fnlist_cons(x0, result)
-
-    fwork(work)
     return result
