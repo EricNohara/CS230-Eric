@@ -14,4 +14,4 @@ foldleft_to_iforeach
 
 let foldleft_to_iforeach (foldleft: ('xs, 'x0, int) foldleft): ('xs, 'x0) iforeach =
   fun xs work -> 
-    let result = foldleft xs 0 (fun i x -> work x i; i+1) in result
+    let _ = foldleft xs 0 (fun i x -> (work i x; i+1)) in ()

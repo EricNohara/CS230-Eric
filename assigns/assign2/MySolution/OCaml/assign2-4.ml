@@ -10,14 +10,22 @@ string_sepjoin_list
 *)
 
 #use "./../../../../classlib/OCaml/MyOCaml.ml"
-#use "./assign2-1.ml"
-#use "./assign2-3.ml"
+#use "./../../assign2.ml"
 
-let list_iforeach (cs: 'a) =
-  foldleft_to_iforeach list_foreach cs
+let foldleft_to_iforeach (foldleft: ('xs, 'x0, int) foldleft): ('xs, 'x0) iforeach =
+  fun xs work -> 
+    let _ = foldleft xs 0 (fun i x -> (work i x; i+1)) in ()
+
+let list_iforeach =
+  fun cs -> foldleft_to_iforeach list_foldleft cs
+
+let rec list_length (cs: 'a): int =
+  match cs with
+  | [] -> 0
+  | hd :: tl -> 1 + list_length(tl)
 
 let string_sepjoin_list (sep: string) (xs: string list): string =
   string_make_fwork (fun work -> 
-    let length = mylist_length xs in
-    list_iforeach xs (fun x work -> (string_foreach x (fun work -> work x)); if (i < length-1) then string_foreach sep (fun work -> work sep))
+    let length = list_length xs in
+    list_iforeach xs (fun i x -> (string_foreach x (fun chr -> work chr); if (i < (length-1)) then string_foreach sep (fun chr -> work chr)))
     )

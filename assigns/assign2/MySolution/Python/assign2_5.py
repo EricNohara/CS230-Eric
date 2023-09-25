@@ -10,9 +10,9 @@ from MyPython import *
 
 def fnlist_make_fwork(fwork):
     result = fnlist_nil()
-    
+
     def work(x0):
-        result = fnlist_cons(x0, result)
+        return fnlist_cons(x0, result)
 
     fwork(work)
     return result
