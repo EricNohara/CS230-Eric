@@ -23,9 +23,11 @@ let rec mylist_length (xs: 'a mylist): int =
   | MySnoc (xs, x1) -> 1 + mylist_length xs
   | MyReverse xs -> mylist_length xs
   | MyAppend2 (xs1, xs2) -> (mylist_length xs1) + (mylist_length xs2)
+
+
 let rec mylist_get_at (xs: 'a mylist) (i0: int): 'a = 
   let length = mylist_length xs in
-  if i0 > length || i0 < 0 then mylist_subscript_exn()
+  if i0 > (length-1) || i0 < 0 then mylist_subscript_exn()
   else 
     match xs with
     | MyNil -> mylist_subscript_exn()
