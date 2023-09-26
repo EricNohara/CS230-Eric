@@ -27,7 +27,7 @@ let rec mylist_length (xs: 'a mylist): int =
 
 let rec mylist_get_at (xs: 'a mylist) (i0: int): 'a = 
   let length = mylist_length xs in
-  if i0 > (length-1) || i0 < 0 then mylist_subscript_exn()
+  if (i0 > (length-1)) || (i0 < 0) then mylist_subscript_exn()
   else 
     match xs with
     | MyNil -> mylist_subscript_exn()
