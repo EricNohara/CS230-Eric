@@ -44,15 +44,21 @@ def string_make_fwork(f):
     f(work)
     return ''.join(result)
 
+def string_get_at(str, i):
+    return str[i]
+
+def string_length(str):
+    return len(str)
+
 def string_merge(str1, str2):
-    length1 = len(str1)
-    length2 = len(str2)
+    length1 = string_length(str1)
+    length2 = string_length(str2)
 
     def foreach(i1, i2, work):
         if i1 < length1:
             if i2 < length2:
-                char1 = str1[i1]
-                char2 = str2[i2]
+                char1 = string_get_at(str1, i1)
+                char2 = string_get_at(str2, i2)
                 if char1 <= char2:
                     work(char1)
                     foreach(i1+1, i2, work)
@@ -60,8 +66,8 @@ def string_merge(str1, str2):
                     work(char2)
                     foreach(i1, i2+1, work)
             else:
-                int1_foreach(length1-i1, lambda i: work(str1[i1+i]))
+                int1_foreach(length1-i1, lambda i: work(string_get_at(str1, i1+i)))
         else:
-            int1_foreach(length2-i2, lambda i: work(str2[i2+i]))
+            int1_foreach(length2-i2, lambda i: work(string_get_at(str2, i2+i)))
 
     return string_make_fwork(lambda work: foreach(0, 0, work))
