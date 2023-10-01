@@ -43,6 +43,7 @@ solve this problem.
 (*
 Assign3-2:
 HX-2023-09-26: 10 points
+list_foldleft
 //
 The function [list_subsets]
 returns all the subsets of a given
