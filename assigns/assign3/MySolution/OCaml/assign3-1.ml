@@ -54,24 +54,40 @@ let find_hd (xss: 'a list list): 'a list =
 let rec empty_list_init (length: int): 'a list list =
   if length = 0 then [] else [] :: empty_list_init (length-1)
 
+let rec list_append (element: 'a) (lst: 'a list): 'a list =
+  match lst with 
+  | [] -> [element]
+  | hd :: tl -> hd :: (list_append element tl)
+
+let rec list_set_at (xs: 'a list list) (i0: int) (value: 'a list): 'a list list =
+  match xs with
+  | [] -> []
+  | hd :: tl when i0 = 0 -> value :: tl
+  | hd :: tl -> hd :: (list_set_at tl (i0 - 1) value)
+  
 let rec matrix_transpose (xss: 'a list list): 'a list list =
   match xss with
   | [] -> []
   | [] :: _ -> []
   | _ ->
-    let num_rows = list_length xss in
     let num_cols = list_length (find_hd xss) in
     let transposed_matrix = empty_list_init num_cols in
 
-    let ans = list_iforeach xss (fun row xs -> 
-      (list_iforeach xs (fun col x -> (x :: (list_get_at transposed_matrix col))))) in ans
+    let ans = list_foldleft xss (0, transposed_matrix) (
+      fun (row, acc) xs -> 
+      let updated_row = list_foldleft xs (0, acc) (
+        fun (col, acc2) x -> 
+        let updated_row = list_get_at acc2 col |> list_append x in
+        (col + 1, list_set_at acc2 col updated_row)
+      ) |> snd in (row + 1, updated_row)) |> snd in ans
 
-(* let rec matrix_transpose (xss: 'a list list): 'a list list =
-  match xss with
-  | [] -> []
-  | [] :: _ -> []
-  | hd :: tl ->
-    let hd_column = list_foldleft xss [] (fun xs -> list_get_at xs 0) in hd_column :: matrix_transpose tl *)
+  
+  
+  
+  
+  
+  
+
 
 
     
