@@ -24,11 +24,6 @@ and [2;1] are DIFFERENT.
 let list_map = 
   fun xs -> foreach_to_map_list(list_foreach)(xs)
 
-let rec concat_list (l1: 'a list) (l2: 'a list): 'a list =
-  match l1 with 
-  | [] -> l2
-  | hd :: tl -> hd :: (concat_list tl l2)
-
 let prepend_all x lst = 
   list_map lst (fun l -> x :: l)
 
@@ -36,7 +31,7 @@ let rec choose_item n xs =
   match (n, xs) with
   | (0, _) -> [[]]
   | (_, []) -> []
-  | (k, y::ys) -> concat_list (prepend_all y (choose_item (k - 1) ys)) (choose_item k ys)
+  | (k, y::ys) -> list_append (prepend_all y (choose_item (k - 1) ys)) (choose_item k ys)
 
 (* MAIN WRAPPER FUNCTION *)
 let list_nchoose (xs: 'a list) (n0: int): 'a list list =
