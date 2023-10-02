@@ -35,8 +35,8 @@ let board_get (bd: board_t) (i: int): int =
   | 4 -> x4
   | 5 -> x5
   | 6 -> x6
-  | 7 -> x7
-  | _ -> -1
+  | _ -> x7
+
 
 let board_set (bd: board_t) (i: int) (j: int): board_t =
   let (x0,x1,x2,x3,x4,x5,x6,x7) = bd in
@@ -63,11 +63,10 @@ let safety_test2 (i0: int) (j0: int) (bd: board_t) (i: int): bool =
 (*intfold left, list fold left, list append, intfold left*)
 let queen8_puzzle_solve(): board_t list =
   let search (bd: board_t): board_t list =
-    let the_solutions = int1_foldleft 8 [] (fun rowAcc i -> 
+    int1_foldleft 8 [bd] (fun rowAcc i -> 
     list_foldleft rowAcc [] (fun colAcc sol -> 
       list_append colAcc (int1_foldleft 8 [] (fun lst j -> 
-        if safety_test2 i (j+1) sol (i-1) then board_set sol i (j-1) :: lst else lst)))) 
-    in the_solutions
-  in search (0,0,0,0,0,0,0,0)
+        if safety_test2 i (j+1) sol (i-1) then board_set sol i (j+1) :: lst else lst)))) 
+  in search ((0,0,0,0,0,0,0,0))
 
   
