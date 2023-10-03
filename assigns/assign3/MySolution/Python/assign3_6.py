@@ -1,7 +1,3 @@
-from MyPython import *
-import sys
-sys.path.append("./../../../../classlib/Python")
-
 ########################################################################
 #
 # Assign3-6: 30 points
