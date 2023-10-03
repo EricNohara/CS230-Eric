@@ -25,10 +25,10 @@ class MyNil(MyList):
 
 
 class MyCons(MyList):
-    def __init__(self, head, tail):
+    def __init__(self, hd, tl):
         self.ctag = 1
-        self.head = head
-        self.tail = tail
+        self.hd = hd
+        self.tl = tl
 
 
 class MySnoc(MyList):
@@ -52,41 +52,27 @@ class MyAppend2(MyList):
 
 
 def mylist_foreach(xs, work):
-    while xs.get_ctag() != 0:
-        if xs.get_ctag() == 1:
-            work(xs.head)
-            xs = xs.tail
-        elif xs.get_ctag() == 2:
-            mylist_foreach(xs.init, work)
-            work(xs.last)
-            return
-        elif xs.get_ctag() == 3:
-            mylist_foreach(xs.list, work)
-            return
-        elif xs.get_ctag() == 4:
-            mylist_foreach(xs.list1, work)
-            mylist_foreach(xs.list2, work)
-            return
-
-
-def mylist_rforeach(xs, work):
     if xs.get_ctag() == 0:
         return
     elif xs.get_ctag() == 1:
-        mylist_rforeach(xs.tail, work)
-        work(xs.head)
-        return
+        work(xs.hd)
+        xs = xs.tl
     elif xs.get_ctag() == 2:
+        mylist_foreach(xs.init, work)
         work(xs.last)
-        mylist_rforeach(xs.init, work)
         return
     elif xs.get_ctag() == 3:
-        mylist_rforeach(xs.list, work)
+        mylist_foreach(xs.list, work)
         return
     elif xs.get_ctag() == 4:
-        mylist_rforeach(xs.list2, work)
-        mylist_rforeach(xs.list1, work)
+        mylist_foreach(xs.list1, work)
+        mylist_foreach(xs.list2, work)
         return
+
+
+def mylist_rforeach(xs, work):
+    # just call the foreach function with the reversed list
+    mylist_foreach(mylist_reverse(xs), work)
 
 # constructors
 
@@ -95,8 +81,8 @@ def mylist_nil():
     return MyNil()
 
 
-def mylist_cons(head, tail):
-    return MyCons(head, tail)
+def mylist_cons(hd, tl):
+    return MyCons(hd, tl)
 
 
 def mylist_snoc(init, last):
