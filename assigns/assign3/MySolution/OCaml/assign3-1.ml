@@ -22,20 +22,6 @@ solve this problem.
 
 #use "./../../../../classlib/OCaml/MyOCaml.ml"
 
-type
-('xs, 'x0) iforeach = 'xs -> (int -> 'x0 -> unit) -> unit
-
-
-let list_map = 
-  fun xs -> foreach_to_map_list(list_foreach)(xs)
-
-let foldleft_to_iforeach (foldleft: ('xs, 'x0, int) foldleft): ('xs, 'x0) iforeach =
-  fun xs work -> 
-    let _ = foldleft xs 0 (fun i x -> (work i x; i+1)) in ()
-  
-let list_iforeach =
-  fun cs -> foldleft_to_iforeach list_foldleft cs  
-
 let rec list_get_at xs i0 = 
     match xs with
     | [] -> []

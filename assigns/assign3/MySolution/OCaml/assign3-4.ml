@@ -22,9 +22,6 @@ https://github.com/xanadu-lang/xats2js/tree/master/docgen/CodeBook/Doublet
 
 #use "./../../../../classlib/OCaml/MyOCaml.ml"
 
-let list_map = 
-  fun xs -> foreach_to_map_list(list_foreach)(xs)
-
 let rec list_append_element element xs =
   match xs with
   | [] -> [element]  (* If the list is empty, create a new list with the element. *)
