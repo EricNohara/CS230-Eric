@@ -20,4 +20,6 @@
 # *)
 
 def foreach_to_get_at(foreach): # your implementation below
-
+    def get_at(xs, i):
+        foreach(xs, lambda x: if x == xs[i]: return x)
+    return get_at

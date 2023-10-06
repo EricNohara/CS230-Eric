@@ -16,5 +16,16 @@ match xs with
 *)
 
 (* ************************************************ *)
+#use "./../../../../classlib/OCaml/MyOCaml.ml"
 
-let list_append(xs: 'a list): 'a list = ....
+let list_append(xs: 'a list) (ys: 'a list): 'a list = 
+  match xs with
+  | [] -> ys
+  | _ -> list_foldleft ys xs (fun xs y -> xs :: y)
+
+  let list_append (xs: 'a list) (ys: 'a list): 'a list =
+    let append_element acc x = x :: acc in
+    let reversed_xs = list_foldleft xs [] append_element in
+    list_foldleft reversed_xs ys (fun acc y -> y :: acc)
+  ;;
+  
