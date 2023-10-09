@@ -15,7 +15,7 @@ let the_ln2_stream: real stream = fun() -> ...
 //
 *)
 
-#use "./../../classlib/OCaml/MyOCaml.ml"
+#use "./../../../../classlib/OCaml/MyOCaml.ml"
 
 let the_ln2_stream =
   let rec generate_stream (sign: float) (cur_denom: float) (cur_partial: float): float stream = fun () ->
