@@ -10,5 +10,25 @@ let theNatPairs: (int*int) stream = fun () -> ...
 //
 *)
 
-let theNatPairs: (int*int) stream = fun () -> 
+#use "./../../../../classlib/OCaml/MyOCaml.ml"
+
+let theNatPairs: (int*int) stream = fun () ->
+  let rec generate_pair i j = 
+    if i = 0 && j = 0 then StrCons ((i, j), fun () -> generate_pair i (j+1))
+    else if j = 0 then StrCons ((i, j), fun () -> generate_pair 0 (i+1))
+    else StrCons ((i, j), fun () -> generate_pair (i+1) (j-1))
+  in generate_pair 0 0 
+
+
+
+
+
+
+
+  
+
+
+
+  
+
   
