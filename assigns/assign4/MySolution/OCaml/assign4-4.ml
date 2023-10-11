@@ -15,5 +15,4 @@ let list_permute(xs: 'a list): 'a list stream
 
 #use "./../../../../classlib/OCaml/MyOCaml.ml"
 
-
 let list_permute (xs: 'a list): 'a list stream =
