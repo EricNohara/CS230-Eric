@@ -15,4 +15,23 @@ let list_permute(xs: 'a list): 'a list stream
 
 #use "./../../../../classlib/OCaml/MyOCaml.ml"
 
-let list_permute (xs: 'a list): 'a list stream =
+(* let list_permute (xs: 'a list): 'a list stream = *)
+  (* for every element in the list take it out and map it to the sub permutations (backtracking in ocaml) *)
+
+  let rec insert_everywhere x xs =
+    match xs with
+    | [] -> [[x]]
+    | h::t -> (x :: xs) :: (List.map (fun l -> h :: l) (insert_everywhere x t))
+  
+  let rec permutations xs =
+    match xs with
+    | [] -> [[]]
+    | x::rest ->
+      let perms = permutations rest in
+      List.flatten (List.map (insert_everywhere x) perms)
+  
+  let permute nums =
+    permutations nums
+  
+  
+  

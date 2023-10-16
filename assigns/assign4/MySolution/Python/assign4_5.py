@@ -38,9 +38,9 @@ sys.path.append("./../../../../classlib/Python")
 
 
 def string_tabulate(length, fun):
-    string_init = " " * length
+    string_init = ""
     for i in range(length):
-        string_init[i] = fun(i)
+        string_init += fun(i)
     return string_init
 
 
@@ -64,16 +64,17 @@ def string_foreach(cs, work):
 
 
 def string_fset_at(cs, i0, c0):
-    string_tabulate(string_length(cs), lambda i:
-                    string_get_at(cs, i) if i != i0 else c0)
+    return string_tabulate(string_length(cs), lambda i:
+                           string_get_at(cs, i) if i != i0 else c0)
 
 
 def alphabet():
-    string_tabulate(26, lambda i: chr(ord('a') + i))
+    return string_tabulate(26, lambda i: chr(ord('a') + i))
 
 
 def list_of_buddies(word):
     n0 = string_length(word)
-    list_make_fwork(lambda work:
-                    int1_foreach(n0, lambda i0:
-                                 string_foreach(alphabet, lambda c1: work(string_fset_at(word, i0, c1)) if c1 != string_get_at(word, i0) else work(word))))
+    list = list_make_fwork(lambda work:
+                           int1_foreach(n0, lambda i0:
+                                        string_foreach(alphabet(), lambda c1: work(string_fset_at(word, i0, c1)) if (c1 != string_get_at(word, i0)) else '')))
+    return list
