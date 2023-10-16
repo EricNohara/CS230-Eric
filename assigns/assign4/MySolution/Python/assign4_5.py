@@ -34,7 +34,7 @@
 # (* ****** ****** *)
 from MyPython import *
 import sys
-sys.path.append("./../../../../classlib/Python")
+sys.path.append("./../../../../../classlib/Python")
 
 
 def string_tabulate(length, fun):
