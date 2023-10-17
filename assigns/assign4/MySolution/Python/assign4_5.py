@@ -32,9 +32,11 @@
 # (fun c1 -> if c1 <> c0 then work(string_fset_at(word)(i0)(c1)))))
 # ;;
 # (* ****** ****** *)
-from MyPython import *
+
 import sys
-sys.path.append("./../../../../../classlib/Python")
+sys.path.append("./../../../../classlib/Python")
+from MyPython import *
+
 
 
 def string_tabulate(length, fun):
