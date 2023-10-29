@@ -33,10 +33,9 @@
 # ;;
 # (* ****** ****** *)
 
+from MyPython import *
 import sys
 sys.path.append("./../../../../classlib/Python")
-from MyPython import *
-
 
 
 def string_tabulate(length, fun):
@@ -44,6 +43,7 @@ def string_tabulate(length, fun):
     for i in range(length):
         string_init += fun(i)
     return string_init
+    # test
 
 
 def string_length(str):
