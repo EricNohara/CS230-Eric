@@ -52,11 +52,48 @@ Grammar (<expr> is the start symbol)
           | (mul <exprs> )
 *)
 
+#use "./../../../../classlib/OCaml/MyOCaml.ml"
+
 type sexpr =
   | SInt of int        (* 1, 2, 3, 4 ...  *)
   | SAdd of sexpr list (* (add e1 e2 ...) *)
   | SMul of sexpr list (* (mul e1 e2 ...) *)
 
 (* ****** ****** *)
+
+let rec parse_expr () : sexpr parser =
+  parse_int () <|> parse_add () <|> parse_mul ()
+
+and parse_int () : sexpr parser =
+  let* n = natural in
+  pure (SInt n) << whitespaces
+
+and parse_add () : sexpr parser =
+  let* _ = keyword "(add" in
+  let* es = many1' parse_expr in
+  let* _ = keyword ")" in
+  pure (SAdd es)
+
+and parse_mul () : sexpr parser =
+  let* _ = keyword "(mul" in
+  let* es = many1' parse_expr in
+  let* _ = keyword ")" in
+  pure (SMul es)
+
+let sexpr_parse (s : string) : sexpr option =
+  match string_parse (parse_expr ()) s with
+  | Some (e, []) -> Some e
+  | _ -> None
+  
+let rec sexpr_to_string (e : sexpr) : string =
+  match e with
+  | SInt n -> string_of_int n
+  | SAdd exprs ->
+    let concat_exprs = list_foldleft exprs "" (fun acc expr -> string_append acc (string_append " " (sexpr_to_string expr)))in
+    string_append "(add" (string_append concat_exprs ")")
+  | SMul exprs ->
+    let concat_exprs = list_foldleft exprs "" (fun acc expr -> string_append acc (string_append " " (sexpr_to_string expr)))in
+    string_append "(mul" (string_append concat_exprs ")")
+  
 
 (* end of [CS320-2023-Fall-assigns-assign6.ml] *)
