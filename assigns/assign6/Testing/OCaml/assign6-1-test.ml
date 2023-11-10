@@ -1,5 +1,9 @@
+<<<<<<< HEAD:assigns/assign6/Testing/assign6-1-test.ml
 #use "./../MySolution/OCaml/assign6-1.ml";;
 #use "./../../../classlib/OCaml/MyOCaml.ml";;
+=======
+#use "./../../MySolution/OCaml/assign6-1.ml";;
+>>>>>>> 3a2f9eb2cd70c01983bd1730a48d49a14090125a:assigns/assign6/Testing/OCaml/assign6-1-test.ml
 
 (* ****** ****** *)
 
