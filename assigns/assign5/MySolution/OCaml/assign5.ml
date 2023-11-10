@@ -46,23 +46,25 @@ let rec trim cs =
    parse "((mul 1 2)" = None
 
 *)
+let is_digit (c: char): bool =
+  '0' <= c && c <= '9' 
+
 let parse_num (cl: char list): (int * char list) option =
   let rec aux acc cl =
     match cl with
-    | c::cs when Char.is_digit c -> let num = int_of_char c in aux (acc * 10 + num) cs
+    | c::cs when is_digit c -> let num = int_of_char c - 48 in aux (acc * 10 + num) cs
     | _ -> Some (acc, cl)
-    | [] -> None
   in
   aux 0 cl
 
 let rec parse_expr (cl: char list): (expr * char list) option =
   match cl with
-  | '(' :: 'a' :: 'd' :: 'd' :: ' ' :: xs -> parse_add xs
-  | '(' :: 'm' :: 'u' :: 'l' :: ' ' :: xs -> parse_mul xs
+  | '('::'a'::'d'::'d'::' '::xs -> parse_add xs
+  | '('::'m'::'u'::'l'::' '::xs -> parse_mul xs
   | _ ->
     match parse_num cl with
     | Some (i, rest) -> Some (Int i, rest)
-    | None -> None
+    | _ -> None
 
 and parse_add (cl: char list): (expr * char list) option =
   let rec aux acc chars =
@@ -83,7 +85,5 @@ let parse (s : string) : expr option = (* YOUR CODE *)
   match parse_expr cl with 
   | Some (exp, []) -> Some exp
   | _ -> None
-
-
 
 
