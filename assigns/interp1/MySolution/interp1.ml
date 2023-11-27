@@ -95,7 +95,8 @@ let rec eval_step s t p =
                   | v1::[] -> eval_step [] ("Panic"::t) [] *)
                   | _ -> eval_step [] ("Panic"::t) [])
    | Div::rst -> (match s with
-                  | (Int v1)::(Int v2)::tl -> eval_step (Int (v1/v2)::tl) t rst
+                  | (Int v1)::(Int v2)::tl -> if v2 != 0 then eval_step (Int (v1/v2)::tl) t rst
+                                             else eval_step [] ("Panic"::t) []
                   (* | [] -> eval_step [] ("Panic"::t) []
                   | v1::[] -> eval_step [] ("Panic"::t) [] *)
                   | _ -> eval_step [] ("Panic"::t) [])
