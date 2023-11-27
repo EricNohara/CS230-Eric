@@ -48,7 +48,7 @@ let parse_com =
    (keyword "Lt" >> pure Lt) <|>
    (keyword "Gt" >> pure Gt)
 
-let parse_coms = many (parse_com << keyword ";")
+let parse_coms = whitespaces >> many (parse_com << keyword ";")
 
 (* ------------------------------------------------------------------------------------------------- *)
  let int2str(i0: int): string = 
