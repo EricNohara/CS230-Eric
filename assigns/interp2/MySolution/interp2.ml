@@ -126,7 +126,7 @@ let toString (c : const) : string =
   | Bool false -> "False"
   | Unit -> "Unit"
   | Sym c -> c
-  | Closure (name, env, coms) -> name
+  | Closure (name, env, coms) -> string_concat_list ["Fun<";name;">"]
 
 let rec eval (s : stack) (t : trace) (v : environment) (p : prog) : trace =
   match p with
