@@ -220,8 +220,8 @@ let rec eval (s : stack) (t : trace) (v : environment) (p : prog) : trace =
                               | (n, value)::rst -> if n = name then eval (value::s0) t v p0 
                                                    else env_lookup rst)
                           in env_lookup v
-      | [] -> eval [] ("TEST2" :: t) [] []
-      | _ :: s0 -> eval [] ("TEST" :: t) [] [])
+      | [] -> eval [] ("Panic" :: t) [] []
+      | _ :: s0 -> eval [] ("Panic" :: t) [] [])
     | Fun c :: p0 -> 
       (match s with
       | Sym name :: s0 -> eval (Closure (name, v, c) :: s0) t v p0
@@ -233,13 +233,14 @@ let rec eval (s : stack) (t : trace) (v : environment) (p : prog) : trace =
                                           eval (a :: Closure ("cc", v, p0) :: s0) t env c
       | [] -> eval [] ("Panic" :: t) [] []
       | _ :: [] -> eval [] ("Panic" :: t) [] []
-      | _ :: _ :: [] -> eval [] ("Panic" :: t) [] [])
+      | _ :: _ :: [] -> eval [] ("Panic" :: t) [] []
+      | _ -> eval [] ("Panic" :: t) [] [])
     | Return :: p0 -> 
       (match s with
       | Closure (f, vf, c) :: a :: s0 -> eval (a :: s0) t vf c
       | [] -> eval [] ("Panic" :: t) [] []
       | _ :: [] -> eval [] ("Panic" :: t) [] []
-      | _ :: _ :: [] -> eval [] ("Panic" :: t) [] [])
+      | _ -> eval [] ("Panic" :: t) [] [])
     
    
 
@@ -253,10 +254,16 @@ let interp (s : string) : string list option =
   (* | Some (p, []) -> Some p *)
   | _ -> None
 
+let parse_str (s: string): com list option =
+  match string_parse (whitespaces >> parse_coms) s with
+  (* | Some (p, []) -> Some (eval [] [] [] p) *)
+  | Some (p, []) -> Some p
+  | _ -> None
+
 (* ------------------------------------------------------------ *)
 
 (* interp from file *)
-
+(* 
 let read_file (fname : string) : string =
   let fp = open_in fname in
   let s = string_make_fwork (fun work ->
@@ -270,4 +277,4 @@ let read_file (fname : string) : string =
 
 let interp_file (fname : string) : string list option =
   let src = read_file fname in
-  interp src
+  interp src *)
