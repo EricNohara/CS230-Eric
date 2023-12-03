@@ -139,9 +139,9 @@ let rec eval (s : stack) (t : trace) (v : environment) (p : prog) : trace =
       | []      (* PopError *) -> eval [] ("Panic" :: t) [] [])
    | Swap :: p0 ->
       (match s with
-      | c1::c2::s0 -> eval (c2::c1::s0) t v p0
+      | c1 :: c2 :: s0 -> eval (c2::c1::s0) t v p0
       | [] -> eval [] ("Panic"::t) [] []
-      | c1::[] -> eval [] ("Panic"::t) [] [])
+      | _ :: [] -> eval [] ("Panic"::t) [] [])
    | Trace :: p0 ->
     (match s with
       | c :: s0 (* TraceStack *) -> eval (Unit :: s0) (toString c :: t) v p0
@@ -203,42 +203,43 @@ let rec eval (s : stack) (t : trace) (v : environment) (p : prog) : trace =
     | Ifelse (c1, c2) :: p0 -> 
       (match s with
       | Bool true :: s0 -> eval s0 t v (list_append c1 p0)
-      | Bool false :: s0 -> eval s0 t v (list_append c2 p0)
-      | [] -> eval [] ("Panic" :: t) [] []
-      | _ -> eval [] ("Panic" :: t) [] [])
+      | Bool false :: s0 -> eval s0 t v (list_append c2 p0)   
+      | _ :: s0 -> eval [] ("Panic" :: t) [] []
+      | [] -> eval [] ("Panic" :: t) [] [])
    | Bind :: p0 -> 
       (match s with
       | Sym name :: value :: s0 -> eval s0 t ((name, value)::v) p0
       | [] -> eval [] ("Panic" :: t) [] []
-      | c::[] -> eval [] ("Panic" :: t) [] []
-      | _ -> eval [] ("Panic" :: t) [] [])
+      | _ :: [] -> eval [] ("Panic" :: t) [] []
+      | _ :: _ :: s0 -> eval [] ("Panic" :: t) [] [])
     | Lookup :: p0 ->
       (match s with
-      | Sym name :: s0 -> let rec env_lookup vs =
-                              match vs with
-                              | [] -> eval [] ("Panic" :: t) [] []
-                              | (n, value)::rst -> if n == name then eval (value::s0) t v p0 
-                                                   else env_lookup rst in env_lookup v
-      | [] -> eval [] ("Panic" :: t) [] []
-      | _ -> eval [] ("Panic" :: t) [] [])
+      | Sym name :: s0 -> let rec env_lookup vs = 
+                              (match vs with
+                              | [] -> eval [] ("TEST3" :: t) [] []
+                              | (n, value)::rst -> if n = name then eval (value::s0) t v p0 
+                                                   else env_lookup rst)
+                          in env_lookup v
+      | [] -> eval [] ("TEST2" :: t) [] []
+      | _ :: s0 -> eval [] ("TEST" :: t) [] [])
     | Fun c :: p0 -> 
       (match s with
       | Sym name :: s0 -> eval (Closure (name, v, c) :: s0) t v p0
       | [] -> eval [] ("Panic" :: t) [] []
-      | _ -> eval [] ("Panic" :: t) [] [])
+      | _ :: s0 -> eval [] ("Panic" :: t) [] [])
     | Call :: p0 -> 
       (match s with
       | Closure (f, vf, c) :: a :: s0 -> let env = (f, Closure (f, vf, c)) :: vf in
                                           eval (a :: Closure ("cc", v, p0) :: s0) t env c
       | [] -> eval [] ("Panic" :: t) [] []
-      | a :: [] -> eval [] ("Panic" :: t) [] []
-      | _ -> eval [] ("Panic" :: t) [] [])
+      | _ :: [] -> eval [] ("Panic" :: t) [] []
+      | _ :: _ :: [] -> eval [] ("Panic" :: t) [] [])
     | Return :: p0 -> 
       (match s with
       | Closure (f, vf, c) :: a :: s0 -> eval (a :: s0) t vf c
       | [] -> eval [] ("Panic" :: t) [] []
-      | c :: [] -> eval [] ("Panic" :: t) [] []
-      | _ -> eval [] ("Panic" :: t) [] [])
+      | _ :: [] -> eval [] ("Panic" :: t) [] []
+      | _ :: _ :: [] -> eval [] ("Panic" :: t) [] [])
     
    
 
@@ -249,6 +250,7 @@ let rec eval (s : stack) (t : trace) (v : environment) (p : prog) : trace =
 let interp (s : string) : string list option =
   match string_parse (whitespaces >> parse_coms) s with
   | Some (p, []) -> Some (eval [] [] [] p)
+  (* | Some (p, []) -> Some p *)
   | _ -> None
 
 (* ------------------------------------------------------------ *)
