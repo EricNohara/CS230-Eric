@@ -339,8 +339,12 @@ let rec expr_to_coms (e: expr) : coms =
   | BOpr (Lte, ex1, ex2) -> expr_to_coms (BOpr(Or, BOpr(Lt, ex1, ex2), BOpr(Eq, ex1, ex2)))
   | BOpr (Gte, ex1, ex2) -> expr_to_coms (BOpr(Or, BOpr(Gt, ex1, ex2), BOpr(Eq, ex1, ex2)))
   | BOpr (Eq, ex1, ex2) -> expr_to_coms (BOpr(And, UOpr(Not, BOpr(Lt, ex1, ex2)), UOpr(Not, BOpr(Gt, ex1, ex2))))
-  | Fun (s1, s2, ex) -> let var = [Push (Sym s2); Bind;] @ (expr_to_coms ex) @ [Swap; Return;] in [Push (Sym s1); Fun (var)]
+  | Fun (s1, s2, ex) -> let var = [Push (Sym s2); Bind;] @ (expr_to_coms ex) @ [Swap; Return;] in [Push (Sym s1); Fun (var);]
   (* | App (ex1, ex2) -> expr_to_coms () *)
+  (* | Let (x, ex1, ex2) ->  *)
+  | Seq (ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2)
+  | Ifte (ex1, ex2, ex3) -> (expr_to_coms ex1) @ [Ifelse ((expr_to_coms ex2), (expr_to_coms ex3));]
+  | Trace ex -> (expr_to_coms ex) @ [Trace;]
 
 let(^) = string_append
   
@@ -360,10 +364,10 @@ let rec coms_to_slist (cs: coms) (s_list: string list): string list =
   | Not :: cs0 -> let com = "Not;" in coms_to_slist cs0 (com :: s_list)
   | Lt :: cs0 -> let com = "Lt;" in coms_to_slist cs0 (com :: s_list)
   | Gt :: cs0 -> let com = "Gt;" in coms_to_slist cs0 (com :: s_list)
-  | Ifelse (c1, c2) :: cs0 -> let com = "If " ^ (string_concat_list (list_reverse (coms_to_slist c1 []))) ^ " Else " ^ (string_concat_list(list_reverse(coms_to_slist c2 []))) in coms_to_slist cs0 (com :: s_list)
+  | Ifelse (c1, c2) :: cs0 -> let com = "If " ^ (string_concat_list (list_reverse (coms_to_slist c1 []))) ^ " Else " ^ (string_concat_list(list_reverse(coms_to_slist c2 []))) ^ " End" in coms_to_slist cs0 (com :: s_list)
   | Bind :: cs0 -> let com = "Bind;" in coms_to_slist cs0 (com :: s_list)
   | Lookup :: cs0 -> let com = "Lookup;" in coms_to_slist cs0 (com :: s_list)
-  | Fun c :: cs0 -> let com = "Fun " ^ (string_concat_list (list_reverse (coms_to_slist c []))) ^ "End" in 
+  | Fun c :: cs0 -> let com = "Fun " ^ (string_concat_list (list_reverse (coms_to_slist c []))) ^ " End" in 
   coms_to_slist cs0 (com :: s_list)
   | Call :: cs0 -> let com = "Call;" in coms_to_slist cs0 (com :: s_list)
   | Return :: cs0 -> let com = "Return;" in coms_to_slist cs0 (com :: s_list)
