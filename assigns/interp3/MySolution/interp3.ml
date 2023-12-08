@@ -1,19 +1,5 @@
 #use "./../../../classlib/OCaml/MyOCaml.ml";;
-
-(*
-
-Please implement the [compile] function following the
-specifications described in CS320_Fall_2023_Project-3.pdf
-
-Notes:
-1. You are only allowed to use library functions defined in MyOCaml.ml
-   or ones you implement yourself.
-2. You may NOT use OCaml standard library functions directly.
-
-*)
-
-(* ------------------------------------------------------------ *)
-
+#use "./../../../interp2/MySolution/interp2.ml";;
 (* abstract syntax tree of high-level language *)
 
 type uopr =
@@ -328,4 +314,38 @@ let parse_prog (s : string) : expr =
   | Some (m, []) -> scope_expr m
   | _ -> raise SyntaxError
 
-let compile (s : string) : string = (* YOUR CODE *)
+let (@) = list_append
+
+let rec expr_to_coms (e: expr) : coms =
+  match e with
+  | Int x -> [Push (Int x)]
+  | Bool x -> [Push (Bool x)]
+  | Unit -> [Push Unit]
+  | UOpr (Neg, Int x) -> [Push (Int (-x))]
+  | UOpr (Neg, ex) -> (expr_to_coms ex) @ [Push (Int 0); Swap; Sub;]
+  | UOpr (Not, ex) -> (expr_to_coms ex) @ [Not;]
+  | BOpr (Add, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Add;]
+  | BOpr (Sub, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Sub;]
+  | BOpr (Mul, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Mul;]
+  | BOpr (Div, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Div;]
+  | BOpr (Mod, ex1, ex2) -> BOpr(Sub, ex2, BOpr(Mul, ex2, BOpr(Div, ex1, ex2))) 
+  | BOpr (And, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [And;]
+  | BOpr (Or, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Or;]
+  | BOpr (Lt, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Lt;]
+  | BOpr (Gt, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Gt;]
+  | BOpr (Lte, ex1, ex2) -> BOpr(Or, BOpr(Lt, ex1, ex2), BOpr(Eq, ex1, ex2))
+  | BOpr (Gte, ex1, ex2) -> BOpr(Or, BOpr(Gt, ex1, ex2), BOpr(Eq, ex1, ex2))
+  | BOpr (Eq, ex1, ex2) -> BOpr(And, BOpr(Not, BOpr(BOpr(Lt, ex1, ex2))), BOpr(Not, BOpr(BOpr(Gt, ex1, ex2))))
+
+
+  (* | Add | Sub | Mul | Div | Mod | And | Or | Lt  | Gt  | Lte | Gte | Eq *)
+
+let coms_to_str (cs: coms): string =
+  (* CODE *)
+
+let compile (s : string) : string =
+  let parsed_expr = parse_prog s in
+  let scoped_expr = scope_expr parsed_expr in
+  let compiled_coms_list = expr_to_coms scoped_expr in
+  coms_to_str compiled_coms_list
+  
