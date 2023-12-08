@@ -1,5 +1,5 @@
 #use "./../../../classlib/OCaml/MyOCaml.ml";;
-#use "./../../../interp2/MySolution/interp2.ml";;
+#use "./../../interp2/MySolution/interp2.ml";;
 (* abstract syntax tree of high-level language *)
 
 type uopr =
@@ -318,34 +318,59 @@ let (@) = list_append
 
 let rec expr_to_coms (e: expr) : coms =
   match e with
-  | Int x -> [Push (Int x)]
-  | Bool x -> [Push (Bool x)]
-  | Unit -> [Push Unit]
-  | UOpr (Neg, Int x) -> [Push (Int (-x))]
+  | Int x -> [Push (Int x);]
+  | Bool x -> [Push (Bool x);]
+  | Unit -> [Push Unit;]
+  | Var x -> [Push (Sym x);]
+  (* UOpr CASES -------------------------------------------------------------------------------------------------------------*)
+  | UOpr (Neg, Int x) -> [Push (Int (-x));]
   | UOpr (Neg, ex) -> (expr_to_coms ex) @ [Push (Int 0); Swap; Sub;]
   | UOpr (Not, ex) -> (expr_to_coms ex) @ [Not;]
+  (* BOpr CASES -------------------------------------------------------------------------------------------------------------*)
   | BOpr (Add, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Add;]
-  | BOpr (Sub, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Sub;]
+  | BOpr (Sub, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap;Sub;]
   | BOpr (Mul, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Mul;]
-  | BOpr (Div, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Div;]
-  | BOpr (Mod, ex1, ex2) -> BOpr(Sub, ex2, BOpr(Mul, ex2, BOpr(Div, ex1, ex2))) 
+  | BOpr (Div, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap;Div;]
+  | BOpr (Mod, ex1, ex2) -> expr_to_coms (BOpr(Sub, ex2, BOpr(Mul, ex2, BOpr(Div, ex1, ex2)))) 
   | BOpr (And, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [And;]
   | BOpr (Or, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Or;]
-  | BOpr (Lt, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Lt;]
-  | BOpr (Gt, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Gt;]
-  | BOpr (Lte, ex1, ex2) -> BOpr(Or, BOpr(Lt, ex1, ex2), BOpr(Eq, ex1, ex2))
-  | BOpr (Gte, ex1, ex2) -> BOpr(Or, BOpr(Gt, ex1, ex2), BOpr(Eq, ex1, ex2))
-  | BOpr (Eq, ex1, ex2) -> BOpr(And, BOpr(Not, BOpr(BOpr(Lt, ex1, ex2))), BOpr(Not, BOpr(BOpr(Gt, ex1, ex2))))
+  | BOpr (Lt, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap;Lt;]
+  | BOpr (Gt, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap;Gt;]
+  | BOpr (Lte, ex1, ex2) -> expr_to_coms (BOpr(Or, BOpr(Lt, ex1, ex2), BOpr(Eq, ex1, ex2)))
+  | BOpr (Gte, ex1, ex2) -> expr_to_coms (BOpr(Or, BOpr(Gt, ex1, ex2), BOpr(Eq, ex1, ex2)))
+  | BOpr (Eq, ex1, ex2) -> expr_to_coms (BOpr(And, UOpr(Not, BOpr(Lt, ex1, ex2)), UOpr(Not, BOpr(Gt, ex1, ex2))))
+  | Fun (s1, s2, ex) -> let var = [Push (Sym s2); Bind;] @ (expr_to_coms ex) @ [Swap; Return;] in [Push (Sym s1); Fun (var)]
+  (* | App (ex1, ex2) -> expr_to_coms () *)
 
+let(^) = string_append
+  
+let rec coms_to_slist (cs: coms) (s_list: string list): string list =
+  match cs with
+  | [] -> s_list
+  | Push c :: cs0 -> let com = "Push " ^ (toString c) ^ ";" in coms_to_slist cs0 (com :: s_list)
+  | Pop :: cs0 -> let com = "Pop;" in coms_to_slist cs0 (com :: s_list)
+  | Swap :: cs0 -> let com = "Swap;" in coms_to_slist cs0 (com :: s_list)
+  | Trace :: cs0 -> let com = "Trace;" in coms_to_slist cs0 (com :: s_list)
+  | Add :: cs0 -> let com = "Add;" in coms_to_slist cs0 (com :: s_list)
+  | Sub :: cs0 -> let com = "Sub;" in coms_to_slist cs0 (com :: s_list)
+  | Mul :: cs0 -> let com = "Mul;" in coms_to_slist cs0 (com :: s_list)
+  | Div :: cs0 -> let com = "Div;" in coms_to_slist cs0 (com :: s_list)
+  | And :: cs0 -> let com = "And;" in coms_to_slist cs0 (com :: s_list)
+  | Or :: cs0 -> let com = "Or;" in coms_to_slist cs0 (com :: s_list)
+  | Not :: cs0 -> let com = "Not;" in coms_to_slist cs0 (com :: s_list)
+  | Lt :: cs0 -> let com = "Lt;" in coms_to_slist cs0 (com :: s_list)
+  | Gt :: cs0 -> let com = "Gt;" in coms_to_slist cs0 (com :: s_list)
+  | Ifelse (c1, c2) :: cs0 -> let com = "If " ^ (string_concat_list (list_reverse (coms_to_slist c1 []))) ^ " Else " ^ (string_concat_list(list_reverse(coms_to_slist c2 []))) in coms_to_slist cs0 (com :: s_list)
+  | Bind :: cs0 -> let com = "Bind;" in coms_to_slist cs0 (com :: s_list)
+  | Lookup :: cs0 -> let com = "Lookup;" in coms_to_slist cs0 (com :: s_list)
+  | Fun c :: cs0 -> let com = "Fun " ^ (string_concat_list (list_reverse (coms_to_slist c []))) ^ "End" in 
+  coms_to_slist cs0 (com :: s_list)
+  | Call :: cs0 -> let com = "Call;" in coms_to_slist cs0 (com :: s_list)
+  | Return :: cs0 -> let com = "Return;" in coms_to_slist cs0 (com :: s_list)
 
-  (* | Add | Sub | Mul | Div | Mod | And | Or | Lt  | Gt  | Lte | Gte | Eq *)
-
-let coms_to_str (cs: coms): string =
-  (* CODE *)
-
-let compile (s : string) : string =
+let compile (s : string) : string = 
   let parsed_expr = parse_prog s in
   let scoped_expr = scope_expr parsed_expr in
   let compiled_coms_list = expr_to_coms scoped_expr in
-  coms_to_str compiled_coms_list
+  string_concat_list (list_reverse (coms_to_slist compiled_coms_list []))
   
