@@ -315,6 +315,7 @@ let parse_prog (s : string) : expr =
   | _ -> raise SyntaxError
 
 let (@) = list_append
+let(^) = string_append
 
 let rec expr_to_coms (e: expr) : coms =
   match e with
@@ -345,32 +346,30 @@ let rec expr_to_coms (e: expr) : coms =
   | Seq (ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2)
   | Ifte (ex1, ex2, ex3) -> (expr_to_coms ex1) @ [Ifelse ((expr_to_coms ex2), (expr_to_coms ex3));]
   | Trace ex -> (expr_to_coms ex) @ [Trace;]
-
-let(^) = string_append
   
 let rec coms_to_slist (cs: coms) (s_list: string list): string list =
   match cs with
   | [] -> s_list
-  | Push c :: cs0 -> let com = "Push " ^ (toString c) ^ ";" in coms_to_slist cs0 (com :: s_list)
-  | Pop :: cs0 -> let com = "Pop;" in coms_to_slist cs0 (com :: s_list)
-  | Swap :: cs0 -> let com = "Swap;" in coms_to_slist cs0 (com :: s_list)
-  | Trace :: cs0 -> let com = "Trace;" in coms_to_slist cs0 (com :: s_list)
-  | Add :: cs0 -> let com = "Add;" in coms_to_slist cs0 (com :: s_list)
-  | Sub :: cs0 -> let com = "Sub;" in coms_to_slist cs0 (com :: s_list)
-  | Mul :: cs0 -> let com = "Mul;" in coms_to_slist cs0 (com :: s_list)
-  | Div :: cs0 -> let com = "Div;" in coms_to_slist cs0 (com :: s_list)
-  | And :: cs0 -> let com = "And;" in coms_to_slist cs0 (com :: s_list)
-  | Or :: cs0 -> let com = "Or;" in coms_to_slist cs0 (com :: s_list)
-  | Not :: cs0 -> let com = "Not;" in coms_to_slist cs0 (com :: s_list)
-  | Lt :: cs0 -> let com = "Lt;" in coms_to_slist cs0 (com :: s_list)
-  | Gt :: cs0 -> let com = "Gt;" in coms_to_slist cs0 (com :: s_list)
-  | Ifelse (c1, c2) :: cs0 -> let com = "If " ^ (string_concat_list (list_reverse (coms_to_slist c1 []))) ^ " Else " ^ (string_concat_list(list_reverse(coms_to_slist c2 []))) ^ " End" in coms_to_slist cs0 (com :: s_list)
-  | Bind :: cs0 -> let com = "Bind;" in coms_to_slist cs0 (com :: s_list)
-  | Lookup :: cs0 -> let com = "Lookup;" in coms_to_slist cs0 (com :: s_list)
-  | Fun c :: cs0 -> let com = "Fun " ^ (string_concat_list (list_reverse (coms_to_slist c []))) ^ " End" in 
+  | Push c :: cs0 -> let com = "Push " ^ (toString c) ^ "; " in coms_to_slist cs0 (com :: s_list)
+  | Pop :: cs0 -> let com = "Pop; " in coms_to_slist cs0 (com :: s_list)
+  | Swap :: cs0 -> let com = "Swap; " in coms_to_slist cs0 (com :: s_list)
+  | Trace :: cs0 -> let com = "Trace; " in coms_to_slist cs0 (com :: s_list)
+  | Add :: cs0 -> let com = "Add; " in coms_to_slist cs0 (com :: s_list)
+  | Sub :: cs0 -> let com = "Sub; " in coms_to_slist cs0 (com :: s_list)
+  | Mul :: cs0 -> let com = "Mul; " in coms_to_slist cs0 (com :: s_list)
+  | Div :: cs0 -> let com = "Div; " in coms_to_slist cs0 (com :: s_list)
+  | And :: cs0 -> let com = "And; " in coms_to_slist cs0 (com :: s_list)
+  | Or :: cs0 -> let com = "Or; " in coms_to_slist cs0 (com :: s_list)
+  | Not :: cs0 -> let com = "Not; " in coms_to_slist cs0 (com :: s_list)
+  | Lt :: cs0 -> let com = "Lt; " in coms_to_slist cs0 (com :: s_list)
+  | Gt :: cs0 -> let com = "Gt; " in coms_to_slist cs0 (com :: s_list)
+  | Ifelse (c1, c2) :: cs0 -> let com = "If " ^ (string_concat_list (list_reverse (coms_to_slist c1 []))) ^ " Else " ^ (string_concat_list(list_reverse(coms_to_slist c2 []))) ^ "End; " in coms_to_slist cs0 (com :: s_list)
+  | Bind :: cs0 -> let com = "Bind; " in coms_to_slist cs0 (com :: s_list)
+  | Lookup :: cs0 -> let com = "Lookup; " in coms_to_slist cs0 (com :: s_list)
+  | Fun c :: cs0 -> let com = "Fun " ^ (string_concat_list (list_reverse (coms_to_slist c []))) ^ "End; " in 
   coms_to_slist cs0 (com :: s_list)
-  | Call :: cs0 -> let com = "Call;" in coms_to_slist cs0 (com :: s_list)
-  | Return :: cs0 -> let com = "Return;" in coms_to_slist cs0 (com :: s_list)
+  | Call :: cs0 -> let com = "Call; " in coms_to_slist cs0 (com :: s_list)
+  | Return :: cs0 -> let com = "Return; " in coms_to_slist cs0 (com :: s_list)
 
 let compile (s : string) : string = 
   let parsed_expr = parse_prog s in
