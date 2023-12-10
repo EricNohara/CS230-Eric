@@ -340,11 +340,11 @@ let rec expr_to_coms (e: expr) : coms =
   | BOpr (Gte, ex1, ex2) -> expr_to_coms (BOpr(Or, BOpr(Gt, ex1, ex2), BOpr(Eq, ex1, ex2)))
   | BOpr (Eq, ex1, ex2) -> expr_to_coms (BOpr(And, UOpr(Not, BOpr(Lt, ex1, ex2)), UOpr(Not, BOpr(Gt, ex1, ex2))))
   | Fun (s1, s2, ex) -> let var = [Push (Sym s2); Bind;] @ (expr_to_coms ex) @ [Swap; Return;] in [Push (Sym s1); Fun (var);]
-  | App (ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap; Call]
+  | App (ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap; Call;]
   | Let (x, ex1, ex2) -> (expr_to_coms ex1) @ [Push (Sym x); Bind;] @ (expr_to_coms ex2)
   | Seq (ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2)
   | Ifte (ex1, ex2, ex3) -> (expr_to_coms ex1) @ [Ifelse ((expr_to_coms ex2), (expr_to_coms ex3));]
-  | Trace ex -> (expr_to_coms ex) @ [Trace; Pop;]
+  | Trace ex -> (expr_to_coms ex) @ [Trace;]
   
 let rec coms_to_slist (cs: coms) (s_list: string list): string list =
   match cs with
