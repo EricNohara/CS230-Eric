@@ -322,30 +322,29 @@ let rec expr_to_coms (e: expr) : coms =
   | Int x -> [Push (Int x);]
   | Bool x -> [Push (Bool x);]
   | Unit -> [Push Unit;]
-  | Var x -> [Push (Sym x);]
+  | Var x -> [Push (Sym x); Lookup;]
   (* UOpr CASES -------------------------------------------------------------------------------------------------------------*)
-  | UOpr (Neg, Int x) -> [Push (Int (-x));]
-  | UOpr (Neg, ex) -> (expr_to_coms ex) @ [Push (Int 0); Swap; Sub;]
+  | UOpr (Neg, ex) -> (expr_to_coms ex) @ [Push (Int 0); Sub;]
   | UOpr (Not, ex) -> (expr_to_coms ex) @ [Not;]
   (* BOpr CASES -------------------------------------------------------------------------------------------------------------*)
   | BOpr (Add, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Add;]
-  | BOpr (Sub, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap;Sub;]
+  | BOpr (Sub, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap; Sub;]
   | BOpr (Mul, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Mul;]
-  | BOpr (Div, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap;Div;]
-  | BOpr (Mod, ex1, ex2) -> expr_to_coms (BOpr(Sub, ex2, BOpr(Mul, ex2, BOpr(Div, ex1, ex2)))) 
+  | BOpr (Div, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap; Div;]
+  | BOpr (Mod, ex1, ex2) -> expr_to_coms (BOpr(Sub, ex1, BOpr(Mul, ex2, BOpr(Div, ex1, ex2)))) 
   | BOpr (And, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [And;]
   | BOpr (Or, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Or;]
-  | BOpr (Lt, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap;Lt;]
-  | BOpr (Gt, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap;Gt;]
+  | BOpr (Lt, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap; Lt;]
+  | BOpr (Gt, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap; Gt;]
   | BOpr (Lte, ex1, ex2) -> expr_to_coms (BOpr(Or, BOpr(Lt, ex1, ex2), BOpr(Eq, ex1, ex2)))
   | BOpr (Gte, ex1, ex2) -> expr_to_coms (BOpr(Or, BOpr(Gt, ex1, ex2), BOpr(Eq, ex1, ex2)))
   | BOpr (Eq, ex1, ex2) -> expr_to_coms (BOpr(And, UOpr(Not, BOpr(Lt, ex1, ex2)), UOpr(Not, BOpr(Gt, ex1, ex2))))
   | Fun (s1, s2, ex) -> let var = [Push (Sym s2); Bind;] @ (expr_to_coms ex) @ [Swap; Return;] in [Push (Sym s1); Fun (var);]
   | App (ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap; Call]
-  | Let (x, ex1, ex2) -> [Push (Sym x);] @ (expr_to_coms ex1) @ [Bind;] @ (expr_to_coms ex2)
+  | Let (x, ex1, ex2) -> (expr_to_coms ex1) @ [Push (Sym x); Bind;] @ (expr_to_coms ex2)
   | Seq (ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2)
   | Ifte (ex1, ex2, ex3) -> (expr_to_coms ex1) @ [Ifelse ((expr_to_coms ex2), (expr_to_coms ex3));]
-  | Trace ex -> (expr_to_coms ex) @ [Trace;]
+  | Trace ex -> (expr_to_coms ex) @ [Trace; Pop;]
   
 let rec coms_to_slist (cs: coms) (s_list: string list): string list =
   match cs with
