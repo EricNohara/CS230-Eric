@@ -317,34 +317,37 @@ let parse_prog (s : string) : expr =
 let (@) = list_append
 let(^) = string_append
 
-let rec expr_to_coms (e: expr) : coms =
+let rec coms_of_ex (e: expr) : coms =
   match e with
   | Int x -> [Push (Int x);]
   | Bool x -> [Push (Bool x);]
-  | Unit -> [Push Unit;]
+  | Unit -> [Push (Unit);]
   | Var x -> [Push (Sym x); Lookup;]
   (* UOpr CASES -------------------------------------------------------------------------------------------------------------*)
-  | UOpr (Neg, ex) -> (expr_to_coms ex) @ [Push (Int 0); Sub;]
-  | UOpr (Not, ex) -> (expr_to_coms ex) @ [Not;]
+  | UOpr (Neg, ex) -> (coms_of_ex ex) @ [Push (Int 0); Sub;]
+  | UOpr (Not, ex) -> (coms_of_ex ex) @ [Not;]
   (* BOpr CASES -------------------------------------------------------------------------------------------------------------*)
-  | BOpr (Add, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Add;]
-  | BOpr (Sub, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap; Sub;]
-  | BOpr (Mul, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Mul;]
-  | BOpr (Div, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap; Div;]
-  | BOpr (Mod, ex1, ex2) -> expr_to_coms (BOpr(Sub, ex1, BOpr(Mul, ex2, BOpr(Div, ex1, ex2)))) 
-  | BOpr (And, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [And;]
-  | BOpr (Or, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Or;]
-  | BOpr (Lt, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap; Lt;]
-  | BOpr (Gt, ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap; Gt;]
-  | BOpr (Lte, ex1, ex2) -> expr_to_coms (BOpr(Or, BOpr(Lt, ex1, ex2), BOpr(Eq, ex1, ex2)))
-  | BOpr (Gte, ex1, ex2) -> expr_to_coms (BOpr(Or, BOpr(Gt, ex1, ex2), BOpr(Eq, ex1, ex2)))
-  | BOpr (Eq, ex1, ex2) -> expr_to_coms (BOpr(And, UOpr(Not, BOpr(Lt, ex1, ex2)), UOpr(Not, BOpr(Gt, ex1, ex2))))
-  | Fun (s1, s2, ex) -> let var = [Push (Sym s2); Bind;] @ (expr_to_coms ex) @ [Swap; Return;] in [Push (Sym s1); Fun (var);]
-  | App (ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2) @ [Swap; Call;]
-  | Let (x, ex1, ex2) -> (expr_to_coms ex1) @ [Push (Sym x); Bind;] @ (expr_to_coms ex2)
-  | Seq (ex1, ex2) -> (expr_to_coms ex1) @ (expr_to_coms ex2)
-  | Ifte (ex1, ex2, ex3) -> (expr_to_coms ex1) @ [Ifelse ((expr_to_coms ex2), (expr_to_coms ex3));]
-  | Trace ex -> (expr_to_coms ex) @ [Trace;]
+  | BOpr (Add, ex1, ex2) -> (coms_of_ex ex1) @ (coms_of_ex ex2) @ [Add;]
+  | BOpr (Sub, ex1, ex2) -> (coms_of_ex ex1) @ (coms_of_ex ex2) @ [Swap; Sub;]
+  | BOpr (Mul, ex1, ex2) -> (coms_of_ex ex1) @ (coms_of_ex ex2) @ [Mul;]
+  | BOpr (Div, ex1, ex2) -> (coms_of_ex ex1) @ (coms_of_ex ex2) @ [Swap; Div;]
+  | BOpr (Mod, ex1, ex2) -> coms_of_ex (BOpr(Sub, ex1, BOpr(Mul, ex2, BOpr(Div, ex1, ex2)))) 
+  | BOpr (And, ex1, ex2) -> (coms_of_ex ex1) @ (coms_of_ex ex2) @ [And;]
+  | BOpr (Or, ex1, ex2) -> (coms_of_ex ex1) @ (coms_of_ex ex2) @ [Or;]
+  | BOpr (Lt, ex1, ex2) -> (coms_of_ex ex1) @ (coms_of_ex ex2) @ [Swap; Lt;]
+  | BOpr (Gt, ex1, ex2) -> (coms_of_ex ex1) @ (coms_of_ex ex2) @ [Swap; Gt;]
+  | BOpr (Lte, ex1, ex2) -> coms_of_ex (BOpr(Or, BOpr(Lt, ex1, ex2), BOpr(Eq, ex1, ex2)))
+  | BOpr (Gte, ex1, ex2) -> coms_of_ex (BOpr(Or, BOpr(Gt, ex1, ex2), BOpr(Eq, ex1, ex2)))
+  | BOpr (Eq, ex1, ex2) -> coms_of_ex (BOpr(And, UOpr(Not, BOpr(Lt, ex1, ex2)), UOpr(Not, BOpr(Gt, ex1, ex2))))
+  | Fun (s1, s2, ex) -> let var = [Push (Sym s2); Bind;] @ (coms_of_ex ex) @ [Swap; Return;] in [Push (Sym s1); Fun (var);]
+  | App (ex1, ex2) -> (coms_of_ex ex1) @ (coms_of_ex ex2) @ [Swap; Call;]
+  | Let (x, ex1, ex2) -> (coms_of_ex ex1) @ [Push (Sym x); Bind;] @ (coms_of_ex ex2)
+  | Seq (ex1, ex2) -> (coms_of_ex ex1) @ (coms_of_ex ex2)
+  | Ifte (ex1, ex2, ex3) -> (coms_of_ex ex1) @ [Ifelse ((coms_of_ex ex2), (coms_of_ex ex3));]
+  | Trace ex -> (coms_of_ex ex) @ [Trace; Pop;]   (*Removing the pop command will make one case work but break other cases*)
+
+let format_string_of_list (xs: 'a list): string =
+  string_concat_list (list_reverse xs)
   
 let rec coms_to_slist (cs: coms) (s_list: string list): string list =
   match cs with
@@ -362,17 +365,16 @@ let rec coms_to_slist (cs: coms) (s_list: string list): string list =
   | Not :: cs0 -> let com = "Not; " in coms_to_slist cs0 (com :: s_list)
   | Lt :: cs0 -> let com = "Lt; " in coms_to_slist cs0 (com :: s_list)
   | Gt :: cs0 -> let com = "Gt; " in coms_to_slist cs0 (com :: s_list)
-  | Ifelse (c1, c2) :: cs0 -> let com = "If " ^ (string_concat_list (list_reverse (coms_to_slist c1 []))) ^ " Else " ^ (string_concat_list(list_reverse(coms_to_slist c2 []))) ^ "End; " in coms_to_slist cs0 (com :: s_list)
+  | Ifelse (c1, c2) :: cs0 -> let com = "If " ^ (format_string_of_list (coms_to_slist c1 [])) ^ " Else " ^ (format_string_of_list(coms_to_slist c2 [])) ^ "End; " in coms_to_slist cs0 (com :: s_list)
   | Bind :: cs0 -> let com = "Bind; " in coms_to_slist cs0 (com :: s_list)
   | Lookup :: cs0 -> let com = "Lookup; " in coms_to_slist cs0 (com :: s_list)
-  | Fun c :: cs0 -> let com = "Fun " ^ (string_concat_list (list_reverse (coms_to_slist c []))) ^ "End; " in 
+  | Fun c :: cs0 -> let com = "Fun " ^ (format_string_of_list (coms_to_slist c [])) ^ "End; " in 
   coms_to_slist cs0 (com :: s_list)
   | Call :: cs0 -> let com = "Call; " in coms_to_slist cs0 (com :: s_list)
   | Return :: cs0 -> let com = "Return; " in coms_to_slist cs0 (com :: s_list)
 
 let compile (s : string) : string = 
   let parsed_expr = parse_prog s in
-  let scoped_expr = scope_expr parsed_expr in
-  let compiled_coms_list = expr_to_coms scoped_expr in
-  string_concat_list (list_reverse (coms_to_slist compiled_coms_list []))
+  let compiled_coms_list = coms_of_ex parsed_expr in
+  format_string_of_list (coms_to_slist compiled_coms_list [])
   
